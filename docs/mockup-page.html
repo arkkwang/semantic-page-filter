@@ -1,0 +1,34 @@
+<!doctype html><html lang="zh"><head><meta charset="utf-8"><style>
+/* 复刻页内反馈占位条样式（apply()），用于 README 截图（数据为演示数据） */
+body{margin:0;padding:0;background:#f6f7f8;font:14px/1.5 system-ui,sans-serif;color:#18191c}
+.page{max-width:720px;margin:0 auto;padding:20px 24px 40px}
+.site{display:flex;align-items:center;gap:10px;padding:14px 0;border-bottom:1px solid #e3e5e7;margin-bottom:6px}
+.logo{width:34px;height:34px;border-radius:8px;background:#fb7299;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:15px}
+.site b{font-size:15px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:18px}
+.vcard{background:#fff;border-radius:8px;overflow:hidden;box-shadow:0 1px 3px #0002}
+.thumb{height:118px;background:linear-gradient(135deg,#d7dbe0,#eef0f3);position:relative}
+.thumb span{position:absolute;right:6px;bottom:6px;background:#0009;color:#fff;font-size:11px;padding:1px 5px;border-radius:4px}
+.vcard .t{padding:8px 10px 12px;font-size:13px;line-height:1.45;color:#18191c}
+.up{color:#9499a0;font-size:12px;margin-top:4px}
+/* 脚本 apply() 的占位条样式 */
+.marker{display:flex;flex-wrap:wrap;gap:6px;align-items:center;max-width:100%;padding:6px 8px;margin:4px 0;border:1px dashed #7294b9;border-radius:6px;background:#eaf3fc;color:#1b3551;font:12px/1.5 system-ui}
+.marker .label{flex:1 1 120px;overflow-wrap:anywhere}
+.marker button{cursor:pointer;padding:4px 8px;border:1px solid #7294b9;border-radius:5px;background:#fff;color:#1b3551;font:12px/1.4 system-ui}
+.marker button.bold{font-weight:650}
+.note{font-size:12px;color:#9499a0;margin:6px 2px 0}
+</style></head><body>
+<div class="page">
+  <div class="site"><div class="logo">演</div><b>示例视频列表页 · 演示数据</b></div>
+  <p class="note">命中规则的卡片默认折叠为一条蓝色占位条，只占一行；点 <b>查看</b> 临时展开，点 <b>不该过滤</b> 立即恢复并记为保留反馈。</p>
+  <div class="grid">
+    <div class="vcard"><div class="thumb"><span>12:34</span></div><div class="t">手工修复一台 1998 年的老式胶片相机，过程治愈<div class="up">手作记录员 · 8.2万观看</div></div></div>
+    <div class="marker"><span class="label">已过滤 · 标题党/情绪化标题</span><button>查看</button><button class="bold">不该过滤</button></div>
+    <div class="vcard"><div class="thumb"><span>05:21</span></div><div class="t">揭秘！娱乐圈不为人知的资本黑手，看完沉默了<div class="up">瓜田里的猹 · 41.7万观看</div></div></div>
+    <div class="marker"><span class="label">已过滤 · 娱乐八卦/吃瓜合集</span><button>查看</button><button class="bold">不该过滤</button></div>
+    <div class="vcard"><div class="thumb"><span>18:05</span></div><div class="t">城市更新：一条老街的改造，居民和商户怎么看<div class="up">本地新闻部 · 1.3万观看</div></div></div>
+    <div class="vcard"><div class="thumb"><span>03:47</span></div><div class="t">曝光！震惊全网的事件背后真相竟然是这样<div class="up">惊悚秘闻录 · 25.9万观看</div></div></div>
+    <div class="marker"><span class="label">已过滤 · 社会秘闻/猎奇惊悚媒体</span><button>查看</button><button class="bold">不该过滤</button></div>
+  </div>
+</div>
+</body></html>

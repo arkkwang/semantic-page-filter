@@ -1,0 +1,58 @@
+<!doctype html><html lang="zh"><head><meta charset="utf-8"><style>
+/* 复刻 semantic-page-filter.user.js 面板样式，仅用于 README 截图（数据为演示数据） */
+body{margin:0;padding:28px;background:#070d16;font:14px/1.55 system-ui,sans-serif;color:#e8edf5;color-scheme:dark;display:flex;justify-content:center}
+*{box-sizing:border-box} [hidden]{display:none!important} button,input,textarea,select{font:inherit} button{cursor:pointer;border:1px solid #48586e;border-radius:8px;padding:8px 12px;background:#243348;color:#edf4fc}button:hover{background:#344a64}button:disabled{opacity:.5;cursor:not-allowed}
+.primary{background:#8cc8fa;color:#0c2238;border-color:#8cc8fa;font-weight:650}.quiet{background:transparent}.row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.spread{justify-content:space-between}h2{font-size:19px;margin:0}h3{font-size:15px;margin:0 0 8px}p{margin:8px 0}small,.muted{color:#acbad0;font-size:12px}.card{background:#1b293c;border:1px solid #36485f;border-radius:10px;padding:12px;margin:12px 0}.card p{overflow-wrap:anywhere}.stack{display:grid;gap:10px}.full{width:100%}
+#panel{position:relative;width:390px;background:#101d2e;border:1px solid #4a5d76;border-radius:16px;padding:18px;box-shadow:0 12px 48px #0006}
+label.field{display:block;margin:12px 0 6px}input:not([type=checkbox]):not([type=range]):not([type=radio]),textarea,select{width:100%;padding:8px;background:#0c1725;color:#edf4fc;border:1px solid #4d617a;border-radius:7px}
+input[type=checkbox],input[type=radio]{accent-color:#8cc8fa}summary{cursor:pointer;color:#b8d8f6}details{margin-top:14px}
+.sample-row{padding:9px 0;border-bottom:1px solid #33465d}.sample-row .row{margin-top:5px}.sample-row button{font-size:12px;padding:3px 7px}
+header{margin-bottom:14px}
+</style></head><body>
+<div id="panel">
+  <header class="row spread"><h2>少看一点</h2><button>关闭</button></header>
+  <div class="card">
+    <h3>这条的原因需要你确认</h3>
+    <p>继续整治未成年"网吧"游戏全部截停！</p>
+    <p class="muted">这个标题没有附带原因，需要确认你不看它的具体原因是什么？</p>
+    <div class="stack">
+      <div class="stack">
+        <label class="row"><input type="checkbox"><span>社会观察/说教</span></label>
+        <label class="row"><input type="checkbox" checked><span>情绪化标题党</span></label>
+        <label class="row"><input type="checkbox">其他原因（自己写）</label>
+      </div>
+      <input type="text" placeholder="一句话说明，例如：标题党煽动情绪">
+      <div class="row">
+        <button class="primary">保存</button>
+        <button class="quiet">暂不回答</button>
+        <button class="quiet">撤销这条少看</button>
+      </div>
+    </div>
+  </div>
+  <div class="row spread"><h3 style="margin:0">本站过滤</h3><label class="row"><input type="checkbox" checked><span>开启</span></label></div>
+  <p class="muted">本页识别 33 项 · 已判断 19 · 已过滤 7</p>
+  <div class="card">
+    <h3>已记住 51 条反馈 · 2 条待学习</h3>
+    <p class="muted">已采用最近的调整。日常过滤仍在本地。</p>
+    <button class="primary full">立即学习</button>
+  </div>
+  <div class="row spread"><h3 style="margin:0">我的偏好</h3><button>用一句话调整</button></div>
+  <div class="card">
+    <div class="row spread"><h3 style="margin:0">标题党/情绪化标题</h3><input type="checkbox" checked aria-label="启用"></div>
+    <p class="muted">用户明确反感体育赛事标题夸张、军事装备标题党以及引发公众愤怒式情绪化标题；边界是标题用提问、质疑或克制陈述时保留。</p>
+    <div class="row"><button>用一句话调整</button><button class="quiet">删除</button></div>
+    <details><summary>查看依据 · 4 条样例</summary></details>
+  </div>
+  <div class="card">
+    <div class="row spread"><h3 style="margin:0">社会秘闻/猎奇惊悚媒体</h3><input type="checkbox" checked aria-label="启用"></div>
+    <p class="muted">用户明确对"出生忠臣"式猎奇不清、恶意 AI 生成图像与"死者归来"式惊悚内容表示不想看；边界是正常社会新闻与历史科普。</p>
+    <div class="row"><button>用一句话调整</button><button class="quiet">删除</button></div>
+    <details><summary>查看依据 · 6 条样例</summary></details>
+  </div>
+  <p class="muted">待整理 · 将进入下次学习，可在此纠正或删除：</p>
+  <div class="sample-row"><span>少看 · 揭秘娱乐圈不为人知的资本黑手，看完沉默了</span>
+    <div class="row"><button>改为保留</button><button>删除</button></div></div>
+  <div class="sample-row"><span>保留 · 手工up主耗时三个月修复一台1998年的老相机</span>
+    <div class="row"><button>改为少看</button><button>删除</button></div></div>
+</div>
+</body></html>

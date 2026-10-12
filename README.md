@@ -1,103 +1,120 @@
-# 少看一点 · 本地语义页面过滤器 0.5.10
+<div align="center">
 
-一个 Tampermonkey 脚本：日常在浏览器本地判断内容，可选使用云端大模型把反馈整理成不同的偏好规则。不需要自建后端。
+<img src="docs/images/hero.jpg" alt="A noisy feed of cards dissolving through a blue filter, leaving a few calm cards" width="720">
 
-## 安装与更新
+# Watch Less · 少看一点
 
-将 [`semantic-page-filter.user.js`](semantic-page-filter.user.js) 全文放入 Tampermonkey 新建脚本并保存；更新时替换原脚本全文，再刷新目标网页。本项目不会替你安装、更新扩展或修改已打开网页上的脚本。
+**A semantic feed filter that runs entirely in your browser.**
 
-旧配置、反馈和已采用规则继续使用原存储格式。更新不自动开启云端服务、不自动采用建议，也不把本站偏好改成跨站共享。`bilibili.example.json` 是旧版配置格式参考，当前正常使用无需复制 JSON。
+Mark what you don't want to see — a small local model learns from your marks and hides similar content. Optional cloud refinement turns your feedback into named rules.
 
-## 日常只走一条路径
+[![Version](https://img.shields.io/badge/version-0.5.10-2f4a6d)](semantic-page-filter.user.js)
+[![License](https://img.shields.io/badge/license-MIT-8cc8fa)](LICENSE)
+[![Userscript](https://img.shields.io/badge/Tampermonkey-userscript-243348)](https://www.tampermonkey.net/)
 
-**浏览内容 → 表达少看或纠错 → 系统整理 → 查看变化并决定采用。**
+**English** · [简体中文](README.zh-CN.md)
 
-- 在卡片旁点 **少看类似**，立即记住反馈；按本站设置只标记或折叠当前项，人工反馈与规则命中一致；不要求填写原因。误点可直接点提示条里的 **撤销**，撤回这次反馈。
-- 在被过滤内容旁点 **不该过滤**，恢复内容并记为保留反馈。正常卡片的更多反馈菜单也可以标记“保留类似”。
-- “这条的原因需要你确认”卡片上直接填写原因并保存，不再跳到顶部输入框。已说明的原因按条记住并随反馈一起发送，后续学习不会重复提问同一张卡片；保存本身不调用大模型，多条原因会随同一次学习请求发送。
-- 被过滤的占位条上直接提供 **不该过滤**：恢复这条并记为保留反馈，刷新后同样可用，无需进面板；**查看** 只是临时展开，不表示喜欢、不改写偏好，刷新后可能再次过滤。悬停卡片的 **撤销标记** 则无痕移除一条精确少看，不新增保留反馈。
-- 右下角 **少看一点** 打开主面板：待采用的调整和未回答的原因询问置顶并直接聚焦；本站状态、独立规则和学习依据在下方。
-- 每条独立规则可以直接 **删除**、开关或点 **用一句话调整**。不再要求用相似度滑杆调效果；样例依据和原始反馈按需展开。
-- 暂停本站过滤会恢复内容，保留配置和反馈。重新开启后继续判断。
+</div>
 
-撤销有两条路：提示条（约 12 秒内）和主面板的“最近标记”（含刷新后，可删除或纠正任意一条，包括已归入规则的）。反馈列表默认只显示待整理的原材料和最近标记；已归入规则的历史反馈收在该规则的“查看依据”里，不再单独罗列。若期间已有其他修改，版本检查会拒绝覆盖后来的数据，可在列表中核对和纠正。
+---
 
-## 快速删除偏好
+## Why
 
-每张偏好卡直接提供 **删除**：本地立即停止使用该规则，不请求大模型。同时移除仅属于它的少看反馈，避免删完后又被当成“待整理样例”继续过滤；保留反馈、其他偏好和共用依据不受影响。内容如果还命中另一条偏好，仍可能被过滤。
+Feeds keep showing things you don't care about: clickbait, rage bait, drama compilations. Keyword blocklists can't catch "same kind of thing, different words", and shipping your browsing history to a cloud AI is a trade you may not want to make.
 
-误删可在提示条点 **撤销**，或在主面板点 **撤销删除偏好**，恢复规则及对应反馈。撤销保留在本标签页；刷新或后续数据变更后不再覆盖恢复，避免误撤销其他操作。
+Watch Less takes a middle path:
 
-删除会取消本标签页的旧学习任务并使旧建议失效，撤销旧的学习调整也不会直接复活这条规则。已发送请求仍可能在远端执行或计费，但删除本身不发送新请求。删除后剩余反馈记作已处理，不会仅因这次操作再自动发起学习。
+- A **small multilingual semantic model runs inside your browser** (WebAssembly, ~118 MB, downloaded once per site). Your daily filtering never leaves your machine.
+- You teach it by **marking items**, not by writing regex. Two clicks on a card, and similar titles get folded away.
+- When you want more structured rules, an **optional** cloud LLM step organizes your feedback into named rules — you review every change before it takes effect. No backend of your own to run.
 
-保存的一整段文字偏好不会被自动删改。以后主动学习或继续积累新反馈时，大模型仍可能根据文字提出相似规则，但需要你重新采用，不会自动恢复。
+## How it works
 
-## 第一次接入网站
-
-从油猴菜单 **打开少看一点** 进入。B 站首页内置了范围，点 **在本站启用** 即可。其他网页从 **设置** 填写生效地址、条目选择器及标题选择器；旁边会显示匹配数量与首项文字，检查后保存。
-
-- B 站首页：条目 `.bili-video-card`，标题 `.bili-video-card__info--tit`。
-- 生效地址只把 `*` 当通配符，匹配协议、域名和路径，不匹配查询参数与片段。
-- 条目应是独立卡片，不要选整个 body 或多层嵌套的大容器。标题选择器在卡片内部匹配，留空则读取卡片文本。
-- 尚未加载标题的骨架卡片不算已完成判断。没有覆盖的卡片需先排查选择器，不应靠降低语义阈值补救。
-
-未配置网站不会扫描页面或创建模型 Worker。通用选择器接入目前仍是技术配置，没有可视化点选器；网站改版后可能要调整。此前用户报告的 B 站“仅识别 9 项”未在同一环境复现，不把默认选择器更新当作已证明解决。
-
-## 偏好文字、学习和采用
-
-“用一句话调整”是可选的补充入口，不是标记内容前的必填表单。
-
-- 按钮统一为 **保存**：只写入本地、不发起请求；云端可用时提示条提供“立即学习”入口，点它才整理，多条内容合并进同一次请求。文字尚未变成可执行规则，不能把“保存成功”理解成过滤已经改变。
-- 偏好文字草稿按网站配置隔离，关闭面板或去设置再返回不会丢失；仅在当前标签页内存保留，刷新后未保存内容不保留。
-- 学习完成后，主面板原位出现 **待采用的调整**。可以采用或暂不采用；学习不会抢走正在填写的设置或偏好编辑位置。
-- 已采用的调整可撤销，反馈样例仍保留。删除一个样例不等于回退整次规则调整。
-
-不同原因会整理成独立规则。待整理反馈不是一条总规则；系统不能归类的内容保留为待澄清项，补充原因是可选的，不要求每次少看都说明原因。补充过的原因按条保存在反馈样例上，随样例一起发送，并明确要求整理服务据此归类、不得再次提问；若学习后仍归不进规则，该条保留为精确少看，卡片显示已说明的原因而不是重新发问。整理服务可为待确认项附最多 3 个候选原因：点选后可在输入框微调，也可选“其他”自己写；没有候选时退回自由填写，候选生成不增加请求次数。
-
-## 云端服务：一次授权，按需使用
-
-在设置中填写兼容 Chat Completions 的完整 HTTPS 接口地址、模型名称和 API Key，然后点 **保存并启用学习服务**。当前不支持所有供应商的专用协议。
-
-- 发送范围：参与本轮整理的已标记标题（含你补充的原因）、你填写的偏好、现有规则描述和依据。不会上传整页推荐；标题及你写的文字仍可能含敏感信息。
-- 默认新增或修改 10 条反馈（含补充或修改的原因）后自动整理，本站每日自动调用上限默认 1 次、可调 1–10，作为无人值守计费的保险丝；达到上限当天状态行会明确提示。**立即学习** 不受自动触发数量和自动次数限制，可能产生额外费用。
-- 同一批未变化内容会去重；失败不自动重复请求。取消、超时不保证远端已停止执行或计费。
-- 采用规则仍需你确认。“允许自动发送”不等于“允许自动生效”。
-- 默认不持久化密钥，只在当前标签页内存保留：刷新后需重新填写密钥才能再次学习（自动和手动都会停），本地过滤不受影响。选择记住后写入油猴本地存储，它不是加密保险箱。停用服务可清除保存的密钥。
-- 并发锁只协调同源页面，不是所有网站的全局调用锁或总费用上限。
-
-本地检查会展示误过滤与漏过滤的变化，但少量历史样例的回放不代表新内容准确率。云端归纳不等于训练了本地模型，也不保证每次都更准。
-
-## 诊断与模型边界
-
-设置中的 **高级与诊断** 保留匹配边框、实际分数、读取文本、仅标记模式、自动调用限制及不含密钥的配置/偏好导出。普通使用不需要调整这些参数。
-
-- 本地推理：Worker + 单线程 WebAssembly CPU，不要求 WebGPU。
-- 运行库：`@huggingface/transformers@3.7.2`，从 jsDelivr 加载。
-- 模型：`Xenova/paraphrase-multilingual-MiniLM-L12-v2`，q8，固定 revision `2c4055b12046f11709e9df2c122e59ffbdc2f900`。
-- 权重为 118,308,126 字节，另需 tokenizer 和运行库。不同网站缓存受源隔离，可能各下载一份；每个标签页也会占用推理内存。CDN 可能校验缓存，不承诺严格离线启动。
-- 日常推理文字不发送到模型 API；启用云端整理时，按上面的授权范围另行发送。模型下载站仍能看到常规网络信息。
-- 小模型主要做语义相似匹配，不保证理解复杂否定、讽刺和情绪表达。不处理视频正文、图片 OCR、Canvas、iframe 或 Shadow DOM 内的内容。
-- 网络、网页 CSP 或 Worker 加载失败时恢复内容并提示，不切换到未经授权的云端推理。长列表性能、各类虚拟列表及所有浏览器兼容性未完整验证。
-
-本脚本采用 MIT；运行库、模型等第三方资源遵循各自许可，未打包进脚本。
-
-## 开发验证与复测
-
-0.5.10 把恢复动作放到伤害现场：被过滤/建议少看的占位条直接携带 [查看] [不该过滤]，“不该过滤”恢复该条并记为保留反馈（与正常卡片同名同义，刷新后可用），不再依赖悬停菜单或面板列表；“撤销标记”保留在悬停菜单中作无痕撤销。语法检查及 40 项单测（含占位条结构断言）通过；浏览器验证留给用户。0.5.9 反馈列表改为“规则材料”模型：默认只显示待整理的原材料（未归入任何规则的少看反馈，最多 30 条）与最近标记（最近 8 条，含已归入规则的，可删除/纠正/改标签，解决刷新后无法还原的问题）；已归入规则的历史反馈不再全量罗列，收在各规则的“查看依据”中。语法检查及既有单测通过；浏览器验证留给用户。0.5.8 修复“待学习”计数忽略原因修改的断点：原因变化现与标签、文字一样计入待学习计数与自动触发阈值（受每日保险丝约束），计数、自动触发与手动去重三处使用同一套变化判定；待采用结果内的位置提示改为“顶部待决定区”。语法检查及 40 项单测通过；浏览器验证留给用户。0.5.7 面板按“要决定的事”重组：待采用的调整与未回答的原因询问置顶，打开面板直接聚焦到第一个决定；偏好文字按钮统一为“保存”（不再随云端状态变义，保存只写本地，提示条提供“立即学习”）；待确认项支持整理服务随请求返回的最多 3 个候选原因，点选可微调、可选“其他”自己写，无候选时退回自由填写。语法检查及单测通过；浏览器验证留给用户。0.5.6 校准行为描述与实际运作的一致性：发送范围声明补上“你补充的原因”（0.5.3 起随标题外发）并说明自动/手动两条路径；“记住密钥”的后果改为结果导向（不勾选则刷新后自动和手动学习都停，本地过滤不受影响）；反馈计数“M 条新变化”改为“M 条待学习”，点明与整理的关系。语法检查及既有单测通过；浏览器验证留给用户。0.5.5 把自动学习的两个数值（触发条数、每日自动上限）从“高级与诊断”移到云端设置现场并说明用途；自动次数用完且还有新反馈时，主面板状态行明确提示可点“立即学习”（手动本就不受自动限制）。语法检查及既有单测通过；浏览器验证留给用户。0.5.4 修正原因保存的请求语义：卡片上的“保存”只写入本地，不再每次触发一条大模型请求；多条原因累积后由提示条上的“立即学习”或主面板按钮统一发送一次。语法检查及既有单测通过；浏览器验证留给用户。0.5.3 修复“补充的原因每轮学习都被重新提问”的缺陷：原因不再拼接进顶部偏好文字，而是按条保存在反馈样例上（随样例一起发送，提示词明确要求不得再次提问），留出评估优先留出未说明原因的样例；待确认卡片改为就地填写，不再跳转顶部输入框。语法检查及 34 项核心与学习单测（含新增的原因保存、发送与留出优先断言）通过；浏览器验证留给用户。0.5.2 修正人工少看绕过“只标记”设置的问题；语法检查及 5 项展示行为测试通过，浏览器验证按用户要求留给用户，以下完整回归记录属于 0.5.1。
-
-```sh
-node --check semantic-page-filter.user.js
-node --test core.test.cjs learning.test.cjs presentation.test.cjs
+```mermaid
+flowchart LR
+    A[Browse\nyour feed] -->|mark see-less / keep| B[Stored locally\nas feedback]
+    B --> C[Local model hides\nsimilar items instantly]
+    B -->|optional, on your call| D[Cloud LLM organizes\nfeedback into rules]
+    D --> E[Review pending changes\nadopt or dismiss]
 ```
 
-Node 仅供开发测试，安装使用不需要 Node。31 项核心与学习单测覆盖校验、反馈、独立规则、草案安全和检查逻辑。
+1. **Browse as usual.** Items matching your feedback get folded into a one-line placeholder with *View* and *Shouldn't be filtered* buttons — one click restores the card and records a keep-vote.
+2. **Mark what annoys you.** *See less like this* on any card. No forms required. Wrong click? Undo it within seconds, or later from the panel.
+3. **Optionally refine.** When enough new feedback piles up (default: 10), the script can ask your LLM to group it into rules like *标题党/情绪化标题* (clickbait/emotional headlines) with clear boundaries. **Nothing takes effect until you adopt it.**
 
-`browser-smoke.js` 是开发测试脚本，不要装进油猴。向全新的 HTTPS 测试页传入完整脚本字符串 `window.__sfSource` 后执行它，等待 `window.sfSmoke.result`。使用真实本地模型、内存 GM 适配器和模拟云端响应，不产生付费 API 请求。若测试页已有安装脚本，避免重复注入，可用同源 HTTPS 子框架做隔离测试（安装脚本声明 `@noframes`）。
+<div align="center">
+<table>
+<tr>
+<td width="40%"><img src="docs/images/panel.png" alt="The Watch Less control panel: a reason-confirmation card with checkbox options, learning status, and rule cards"></td>
+<td width="60%"><img src="docs/images/page.png" alt="A demo video list where matched cards are folded into dashed placeholder bars with View and Shouldn't-be-filtered buttons"></td>
+</tr>
+</table>
+<sub>Left: the panel — answer why, manage rules, trigger learning. Right: matched cards folded into placeholders in place. (Demo data; UI is Chinese.)</sub>
+</div>
 
-本轮 0.5.1：语法检查及 31 项 Node 单测通过；48 项浏览器交互回归通过，使用**固定推理替身与模拟云端响应**，只验证流程、不验证模型效果，结果见 `browser-results.json`。覆盖主面板路径、草稿/焦点保持、原位撤销、查看不改偏好、完整学习与采用、过期草案、取消和配置切换等。
+## Getting started
 
-上版 0.5.0 的真实模型模式完成了前 14 项交互检查，但在等待模型判断时超时；控制台记录 WASM 网络加载中断。失败结果保留在 `browser-results.real-incomplete.json`，本轮不宣称真实模型完整回归通过。`browser-results.0.2.json` 保留历史证据，不代表新版通过。
+**Install** — [Tampermonkey](https://www.tampermonkey.net/) required.
 
-在相同注入方式下，先设置 `window.__sfInferenceMode = 'fake'` 再执行回归脚本，即可复现无需模型下载的交互测试；默认仍是真实模型模式。运行结果明确标识模式。测试结束暂停本站、停用模拟服务并终止测试 Worker；GM 内存适配器保留到测试文档销毁，以免剩余定时器调用失效接口。
+1. Open Tampermonkey → create a new script.
+2. Paste the full contents of [`semantic-page-filter.user.js`](semantic-page-filter.user.js) and save.
+3. Open Bilibili's home page and hit **少看一点** in the corner → **在本站启用**. That's it — Bilibili's selectors ship built-in.
 
-**页面注入测试不等于实际 Tampermonkey 安装环境的端到端验证；模拟云端不等于真实供应商可用。** 尚未通过真实用户观察验证“更好用”，不能用功能测试数量替代这一点。
+Updating is the same paste-and-save; your feedback, rules and settings are stored separately and survive updates.
+
+**Other sites** — from the panel's *设置* tab, fill in:
+
+| Field | Meaning |
+| --- | --- |
+| 生效地址 | Where it applies. `*` is a wildcard for protocol/host/path; query strings are ignored. |
+| 条目选择器 | CSS selector for one feed card (e.g. `.bili-video-card`). Don't pick giant containers. |
+| 标题选择器 | CSS selector for the title inside a card. Leave empty to use the card's text. |
+
+A live match count and the first matched text are shown so you can verify before saving. There is no visual picker yet — this part is still hands-on, and site redesigns may need selector updates.
+
+## Teaching it
+
+- **少看类似** — records a see-less vote. No reason required. An undo toast appears for ~12 s; the panel's *recent marks* list also lets you delete or flip any mark later, even after a refresh.
+- **不该过滤** — on a filtered placeholder: restores the item and records a keep-vote, which protects it and similar titles.
+- **The reason card** — when the system can't tell *why* you blocked something, it asks. Tick suggested reasons (multi-select), write your own, hit **暂不回答** to skip, or **撤销这条少看** to withdraw the block entirely. Your answer is attached to that item and never re-asked.
+- **Rules** — each adopted rule is a card you can toggle, delete (instant, undoable), or adjust with one sentence (*用一句话调整*). Every rule shows the feedback samples it was built from.
+
+## Cloud refinement (optional)
+
+Off by default. You bring any Chat-Completions-compatible endpoint and key; nothing is sent until learning runs — manually via **立即学习**, or automatically after the default 10 new feedback items (capped at N auto-runs per day, default 1 — a fuse against unattended billing; *立即学习* bypasses both limits).
+
+**What gets sent:** the marked titles participating in this round (including reasons you wrote), your preference sentence, and the descriptions/evidence of existing rules. **Not sent:** your feed, unmarked content, or page contents.
+
+- Adopted changes appear as a diff first — **允许自动发送 ≠ 允许自动生效**. You can roll back any adopted change.
+- Unchanged batches are deduplicated; failures don't auto-retry. Cancelling or timing out doesn't guarantee the remote stopped (or won't bill).
+- Keys live in tab memory only by default — refresh and you re-enter it. "Remember" stores it in userscript storage, which is convenient, not encrypted. Disabling the service clears a stored key.
+
+## Limits, honestly
+
+- The local model does **semantic similarity**, not understanding: complex negation, irony and sarcasm are unreliable. It doesn't read video content, images, `<canvas>`, iframes or Shadow DOM.
+- First run downloads ~118 MB of model weights from jsDelivr per site origin; offline start isn't guaranteed.
+- Long/virtualized lists and non-Chromium browsers are not fully tested. CSP-restricted pages are recovered gracefully (content restored, a notice shown).
+- The generalization claim is deliberately modest: local checks report false-block/miss *deltas on your own samples*, which is not an accuracy guarantee for new content.
+
+<details>
+<summary><strong>Technical details</strong></summary>
+
+- Local inference: Web Worker + single-threaded WebAssembly CPU (`@huggingface/transformers@3.7.2`, loaded from jsDelivr).
+- Model: `Xenova/paraphrase-multilingual-MiniLM-L12-v2`, q8 quantized, pinned to revision `2c4055b12046f11709e9df2c122e59ffbdc2f900` (118,308,126 bytes of weights).
+- Storage: userscript storage (`GM_setValue`), per-site profiles. Settings export excludes your key.
+- Concurrency locks coordinate tabs of the *same site only* — not a global spend cap.
+- `docs/mockup-*.html` are the demo-data mockups the README screenshots were taken from.
+
+</details>
+
+## Development
+
+No build step, no dependencies, no Node required to *use* it.
+
+```sh
+node --check semantic-page-filter.user.js   # syntax check for contributors
+```
+
+## License
+
+[MIT](LICENSE). Third-party assets (the runtime library and model) keep their own licenses and are not bundled.
