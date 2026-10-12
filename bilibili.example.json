@@ -1,0 +1,22 @@
+{
+  "profiles": [
+    {
+      "name": "B站首页推荐（先标记观察）",
+      "enabled": true,
+      "urlPattern": "https://www.bilibili.com/",
+      "itemSelector": ".bili-video-card",
+      "textSelector": ".bili-video-card__info--tit",
+      "action": "mark",
+      "rules": [
+        {
+          "name": "国际政治博弈",
+          "description": "国际关系、地缘政治、国家间的权力博弈和外交冲突",
+          "blockExamples": ["两国冲突升级，谁将成为最后赢家", "大国博弈与国际局势分析"],
+          "keepExamples": ["旅行路线、城市风景和当地美食", "软件编程教程与芯片技术分析"],
+          "threshold": 0.55,
+          "margin": 0.05
+        }
+      ]
+    }
+  ]
+}
