@@ -32,10 +32,10 @@ Watch Less takes a middle path:
 
 ```mermaid
 flowchart LR
-    A[Browse\nyour feed] -->|mark see-less / keep| B[Stored locally\nas feedback]
-    B --> C[Local model hides\nsimilar items instantly]
-    B -->|optional, on your call| D[Cloud LLM organizes\nfeedback into rules]
-    D --> E[Review pending changes\nadopt or dismiss]
+    A[Browse your feed] -->|mark see-less / keep| B[Stored locally as feedback]
+    B --> C[Local model hides similar items instantly]
+    B -->|optional, on your call| D[Cloud LLM organizes feedback into rules]
+    D --> E[Review pending changes, adopt or dismiss]
 ```
 
 1. **Browse as usual.** Items matching your feedback get folded into a one-line placeholder with *View* and *Shouldn't be filtered* buttons — one click restores the card and records a keep-vote.
